@@ -8,6 +8,7 @@ public class HttpMainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //check commit from Android studio
+        //commit from second PC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_http_main);
     }
