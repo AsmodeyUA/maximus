@@ -1,28 +1,36 @@
 package forever.in.net.samplehttp;
 
-import android.os.StrictMode;
-import android.support.v7.app.AppCompatActivity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
+import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.GsonBuilder;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
-
+import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class HttpMainActivity extends AppCompatActivity {
 
     private Button getRequest;
     private TextView textResView;
 
+    private Uri mImageCaptureUri;
+    private ImageView mImageView;
+
+    private static final int PICK_FROM_CAMERA = 1;
+    private static final int PICK_FROM_FILE = 2;
 
 
     @Override
@@ -48,60 +56,89 @@ public class HttpMainActivity extends AppCompatActivity {
                 textResView.setText(replyFromServer);
             }
         });
-    }
-    public static void execute11() {
-        Map<String, String> comment = new HashMap<String, String>();
-        comment.put("subject", "Using the GSON library");
-        comment.put("message", "Using libraries is convenient.");
-        String json = new GsonBuilder().create().toJson(comment, Map.class);
-        makeRequest("http://192.168.0.1:3000/post/77/comments", json);
+
+        final String [] items           = new String [] {"From Camera", "From SD Card"};
+        ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
+        AlertDialog.Builder builder     = new AlertDialog.Builder(this);
+
+        builder.setTitle("Select Image");
+        builder.setAdapter( adapter, new DialogInterface.OnClickListener() {
+            public void onClick( DialogInterface dialog, int item ) {
+                if (item == 0) {
+                    Intent intent    = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    File file        = new File(Environment.getExternalStorageDirectory(),
+                            "tmp_avatar_" + String.valueOf(System.currentTimeMillis()) + ".jpg");
+                    mImageCaptureUri = Uri.fromFile(file);
+
+                    try {
+                        intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
+                        intent.putExtra("return-data", true);
+
+                        startActivityForResult(intent, PICK_FROM_CAMERA);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    dialog.cancel();
+                } else {
+                    Intent intent = new Intent();
+
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+
+                    startActivityForResult(Intent.createChooser(intent, "Complete action using"), PICK_FROM_FILE);
+                }
+            }
+        } );
+
+        final AlertDialog dialog = builder.create();
+
+        mImageView = (ImageView) findViewById(R.id.imageView);
+
+        ((Button) findViewById(R.id.button2)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.show();
+            }
+        });
+
     }
 
-    public static int makeRequest(String uri, String json) {
-//        try {
-//
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-        return 0;
-    }
-    public class PostExample {
-        public final MediaType JSON
-                = MediaType.parse("application/json; charset=utf-8");
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != RESULT_OK) return;
 
-        OkHttpClient client = new OkHttpClient();
+        Bitmap bitmap   = null;
+        String path     = "";
 
-        String post(String url, String json) throws IOException {
-            RequestBody body = RequestBody.create(JSON, json);
-            Request request = new Request.Builder()
-                    .url(url)
-                    .post(body)
-                    .build();
-            Response response = client.newCall(request).execute();
-            return response.body().string();
+        if (requestCode == PICK_FROM_FILE) {
+            mImageCaptureUri = data.getData();
+            path = getRealPathFromURI(mImageCaptureUri); //from Gallery
+
+            if (path == null)
+                path = mImageCaptureUri.getPath(); //from File Manager
+
+            if (path != null)
+                bitmap  = BitmapFactory.decodeFile(path);
+        } else {
+            path    = mImageCaptureUri.getPath();
+            bitmap  = BitmapFactory.decodeFile(path);
         }
 
-        String postToJson(String player1, String player2) {
-            return "{'winCondition':'HIGH_SCORE',"
-                    + "'name':'Bowling',"
-                    + "'round':4,"
-                    + "'lastSaved':1367702411696,"
-                    + "'dateStarted':1367702378785,"
-                    + "'players':["
-                    + "{'name':'" + player1 + "','history':[10,8,6,7,8],'color':-13388315,'total':39},"
-                    + "{'name':'" + player2 + "','history':[6,10,5,10,10],'color':-48060,'total':41}"
-                    + "]}";
-        }
-
-        public void execcute11() throws IOException {
-            PostExample example = new PostExample();
-            String json = example.postToJson("Jesse", "Jake");
-            String response = example.post("http://www.roundsapp.com/post", json);
-            System.out.println(response);
-        }
+        mImageView.setImageBitmap(bitmap);
     }
 
+    public String getRealPathFromURI(Uri contentUri) {
+        String [] proj      = {MediaStore.Images.Media.DATA};
+        Cursor cursor       = managedQuery( contentUri, proj, null, null,null);
+
+        if (cursor == null) return null;
+
+        int column_index    = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+
+        cursor.moveToFirst();
+
+        return cursor.getString(column_index);
+    }
 
 }
