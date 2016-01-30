@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -106,6 +107,7 @@ public class HttpMainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        System.out.print(resultCode);
         if (resultCode != RESULT_OK) return;
 
         Bitmap bitmap   = null;
@@ -123,8 +125,11 @@ public class HttpMainActivity extends AppCompatActivity {
         } else {
             path    = mImageCaptureUri.getPath();
             bitmap  = BitmapFactory.decodeFile(path);
-        }
 
+        }
+        dataToPost post1 = new dataToPost();
+        post1.loadLogoImage(bitmap);
+        post1.uploadPost();
         mImageView.setImageBitmap(bitmap);
     }
 
