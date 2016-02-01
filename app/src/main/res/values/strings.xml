@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SampleHttp</string>
+    <string name="hellostring">Hello World!</string>
 </resources>
