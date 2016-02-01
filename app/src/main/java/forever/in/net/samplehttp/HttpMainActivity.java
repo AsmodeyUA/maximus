@@ -18,13 +18,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
 public class HttpMainActivity extends AppCompatActivity {
 
-    private Button getRequest;
     private TextView textResView;
 
     private Uri mImageCaptureUri;
@@ -42,13 +40,13 @@ public class HttpMainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_http_main);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-        getRequest=(Button) findViewById(R.id.button);
+        Button getRequest = (Button) findViewById(R.id.button);
         textResView=(TextView) findViewById(R.id.textView);
         getRequest.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                String replyFromServer ="Reply";
+                String replyFromServer = "Reply";
                 try {
                     replyFromServer = SiteApi.getRequestFromSite("http://95.215.156.221:8899/web2/find/extended?key=river&latitude=48.1851006&longitude=23.177981&radius=10000");
                 } catch (IOException e) {
@@ -58,8 +56,20 @@ public class HttpMainActivity extends AppCompatActivity {
             }
         });
 
+        Button showBubbleMenu = (Button) findViewById(R.id.ShowMenu);
+        showBubbleMenu.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(HttpMainActivity.this, BubbleMenuActivity.class);
+                startActivity(intent);
+
+            }
+        });
+
         final String [] items           = new String [] {"From Camera", "From SD Card"};
-        ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
+        ArrayAdapter<String> adapter  = new ArrayAdapter<> (this, android.R.layout.select_dialog_item,items);
         AlertDialog.Builder builder     = new AlertDialog.Builder(this);
 
         builder.setTitle("Select Image");
@@ -96,7 +106,7 @@ public class HttpMainActivity extends AppCompatActivity {
 
         mImageView = (ImageView) findViewById(R.id.imageView);
 
-        ((Button) findViewById(R.id.button2)).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.show();
@@ -111,7 +121,7 @@ public class HttpMainActivity extends AppCompatActivity {
         if (resultCode != RESULT_OK) return;
 
         Bitmap bitmap   = null;
-        String path     = "";
+        String path ;
 
         if (requestCode == PICK_FROM_FILE) {
             mImageCaptureUri = data.getData();
@@ -133,17 +143,18 @@ public class HttpMainActivity extends AppCompatActivity {
         mImageView.setImageBitmap(bitmap);
     }
 
-    public String getRealPathFromURI(Uri contentUri) {
-        String [] proj      = {MediaStore.Images.Media.DATA};
-        Cursor cursor       = managedQuery( contentUri, proj, null, null,null);
-
-        if (cursor == null) return null;
-
-        int column_index    = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-
-        cursor.moveToFirst();
-
-        return cursor.getString(column_index);
+    private String getRealPathFromURI(Uri contentUri) {
+        String res = null;
+        String[] project = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getContentResolver().query(contentUri, project, null, null, null);
+        if (cursor != null) {
+            if(cursor.moveToFirst()){
+                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                res = cursor.getString(column_index);
+            }
+            cursor.close();
+        }
+        return res;
     }
 
 }

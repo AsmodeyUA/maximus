@@ -18,18 +18,18 @@ import java.io.IOException;
 import static com.squareup.okhttp.MultipartBuilder.FORM;
 
 public class dataToPost {
-    String description;
-    String latitude;
-    String longitude;
-    String userId;
-    String userNick;
-    String daysToLive;
-    String title;
-    File logo;
+    private final String description;
+    private final String latitude;
+    private final String longitude;
+    private final String userId;
+    private final String userNick;
+    private final String daysToLive;
+    private final String title;
+    private File logo;
 
     dataToPost(){
 
-        description="NewDescr";
+        description="NewDescription";
         latitude="42.780601501464844";
         longitude="35.0875000953674316";
         userId="7f49b84d-0bbc-38e9-a493-718013baace6";
@@ -43,7 +43,7 @@ public class dataToPost {
         try {
             File photo=new File("logo.jpg");
             if (photo.exists()) {
-                photo.delete();
+                final boolean deleteResult = photo.delete();
             }
             FileOutputStream fos=new FileOutputStream(photo.getPath());
             bitmapFile.compress(Bitmap.CompressFormat.JPEG, 100, fos);
