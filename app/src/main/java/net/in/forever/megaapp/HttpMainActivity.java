@@ -1,4 +1,4 @@
-package forever.in.net.samplehttp;
+package net.in.forever.megaapp;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;

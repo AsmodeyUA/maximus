@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="forever.in.net.samplehttp.HttpMainActivity">
+    tools:context="net.in.forever.megaapp.HttpMainActivity">
 
     <TableLayout
         android:layout_width="match_parent"

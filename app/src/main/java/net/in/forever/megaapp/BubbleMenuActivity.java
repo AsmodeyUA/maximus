@@ -1,4 +1,4 @@
-package forever.in.net.samplehttp;
+package net.in.forever.megaapp;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;

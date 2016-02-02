@@ -1,4 +1,4 @@
-package forever.in.net.samplehttp;
+package net.in.forever.megaapp;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
