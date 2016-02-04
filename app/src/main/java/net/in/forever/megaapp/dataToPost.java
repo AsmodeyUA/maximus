@@ -30,13 +30,13 @@ public class dataToPost {
 
     dataToPost(String temporarypath){
 
-        description="NewDescription";
-        latitude="33";
-        longitude="33";
+        description="New Description";
+        latitude="33.1123";
+        longitude="33.1123";
         userId="5570b31c-3aa2-3824-b980-aa25e7ce9ce1";
         userNick="sampleuser123";
         daysToLive="7";
-        title="newTitle";
+        title="new Title";
         logo = null;
         tempdirectory = temporarypath;
     }
