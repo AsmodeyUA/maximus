@@ -137,7 +137,7 @@ public class HttpMainActivity extends AppCompatActivity {
             bitmap  = BitmapFactory.decodeFile(path);
 
         }
-        dataToPost post1 = new dataToPost();
+        dataToPost post1 = new dataToPost(this.getFilesDir().getPath());
         post1.loadLogoImage(bitmap);
         post1.uploadPost();
         mImageView.setImageBitmap(bitmap);

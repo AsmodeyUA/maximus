@@ -130,13 +130,13 @@ public class BubbleMenuActivity extends Activity {
         });
 
         double a_el = global_x /4, b_el = global_y /4;
-        double start_alpha = 0;
+        double start_alpha =- Math.PI;
         int n_steps =9;
         int n_stable_per_point = 5;
-        double stop_alpha = 2 * Math.PI;
-        double alfa = Math.atan(global_y / global_x);
-        //double alfa = 0;
-        double step = stop_alpha / (n_steps * (n_stable_per_point+1));
+        double stop_alpha = Math.PI;
+        //double alfa = Math.atan(global_y / global_x);
+        double alfa = 0;
+        double step = (stop_alpha-start_alpha) / (n_steps * (n_stable_per_point+1));
         int shift_x = global_x /2;
         int shift_y = global_y /2;
 
@@ -228,6 +228,7 @@ public class BubbleMenuActivity extends Activity {
             }
             if (Math.cos(start_alpha)>=0){
                 additional_size = init_radius*(Math.cos(start_alpha))/1.7;
+                additional_size = 0;
                 visible_indic =true;
             } else {
                 additional_size = 0;

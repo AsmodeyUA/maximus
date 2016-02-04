@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class SiteApi {
 
-    public static String serverURL = "http://95.215.156.221:8899/web2/add?";
+    public static String serverURL = "http://95.215.156.221:8899/web2/adverts/add?";
 
     public static String getRequestFromSite(String url) throws IOException {
         OkHttpClient client = new OkHttpClient();
