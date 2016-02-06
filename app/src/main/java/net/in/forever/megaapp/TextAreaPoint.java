@@ -33,9 +33,11 @@ public class TextAreaPoint {
         linnear_lay.topMargin = point.draw_y; // отступ сверху
         textView.setLayoutParams(linnear_lay);
         if (point.visible){
+            textView.getBackground().setAlpha(255);
             textView.setText(name);
         } else {
-            textView.setText("_");
+            textView.setText("");
+            textView.getBackground().setAlpha(150);
         }
         //textView.setText(point.draw_x+"\n"+point.draw_y);
     }
@@ -48,7 +50,7 @@ public class TextAreaPoint {
         if (point.visible){
             textView.setText(name);
         } else {
-            textView.setText("_");
+            textView.setText("");
         }
         //textView.setText(point.draw_x+"\n"+point.draw_y);
     }

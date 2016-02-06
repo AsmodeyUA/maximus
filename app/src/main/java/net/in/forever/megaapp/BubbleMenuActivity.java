@@ -81,7 +81,25 @@ public class BubbleMenuActivity extends Activity {
                 Color.YELLOW,
                 0xDDccffff,
                 0xDDAA0000,
-                0xDD0382ef
+                0xDD0382ef,
+                Color.RED,
+                Color.MAGENTA,
+                Color.BLUE,
+                0xDDffc966,
+                0xDDf2e5f2,
+                Color.CYAN,
+                Color.YELLOW,
+                0xDDccffff,
+                0xDDAA0000,
+                Color.RED,
+                Color.MAGENTA,
+                Color.BLUE,
+                0xDDffc966,
+                0xDDf2e5f2,
+                Color.CYAN,
+                Color.YELLOW,
+                0xDDccffff,
+                0xDDAA0000,
         };
 
         Drawable ball_image = ContextCompat.getDrawable(getBaseContext(), R.drawable.ball_gray2);
@@ -130,24 +148,24 @@ public class BubbleMenuActivity extends Activity {
         });
 
         double a_el = global_x /4, b_el = global_y /4;
-        double start_alpha =- Math.PI;
+        double start_alpha =3* Math.PI/2;
         int n_steps =9;
         int n_stable_per_point = 5;
-        double stop_alpha = Math.PI;
-        //double alfa = Math.atan(global_y / global_x);
-        double alfa = 0;
-        double step = (stop_alpha-start_alpha) / (n_steps * (n_stable_per_point+1));
+        double stop_alpha = 13*Math.PI/4;
+        //double stop_alpha = 0;
+        double alfa = Math.atan(global_y / global_x);
+        //double alfa = 0;
         int shift_x = global_x /2;
         int shift_y = global_y /2;
 
-        int radius = 150;
+        int radius = 100;
 
         //		Button[] buttonAll = new Button[n_steps];
         //		ImageView[] imageViewAll = new ImageView[n_steps];
         //		TextView[] textViewAll = new TextView[n_steps];
 
         List<EllipsePoint> list2 = generate_coord(a_el, b_el, start_alpha,
-                stop_alpha, step, shift_x, shift_y, n_stable_per_point, radius,alfa);
+                stop_alpha, shift_x, shift_y, n_stable_per_point, radius,alfa);
         System.out.println(list2);
         Iterator<EllipsePoint> itr = list2.iterator();
         EllipsePoint tempEl,templElprev;
@@ -194,7 +212,7 @@ public class BubbleMenuActivity extends Activity {
     }
 
     private static List<EllipsePoint> generate_coord(double a_el, double b_el,
-                                                     double start_alpha, double stop_alpha, double step, int shift_x,
+                                                     double start_alpha, double stop_alpha, int shift_x,
                                                      int shift_y, int n_stable_per_point, int init_radius, double alfa) {
 
         List<EllipsePoint> listGen = new LinkedList<>();
@@ -209,57 +227,88 @@ public class BubbleMenuActivity extends Activity {
         double sin_alpha = Math.sin(alfa);
         double cos_alpha = Math.cos(alfa);
         int counter = 0;
-        boolean stable_indic = false;
-        boolean visible_indic = false;
+
         int radius;
-        double additional_size=0;
+        double additional_size=100;
         EllipsePoint firstEllipsePoint=null;
         EllipsePoint lastEllipsePoint=null;
         EllipsePoint newEllipsePoint=null;
 
+        int numberVisible = 5;
+        int allNumber = 14;
+        int numberNotVisible = allNumber-numberVisible;
+        int numperPerStep =7;
 
-        while (start_alpha <= stop_alpha) {
-            if (counter == n_stable_per_point) {
-                stable_indic = true;
-                counter = 0;
-            } else {
-                stable_indic = false;
-                counter++;
+        double koefForDistance=0.9;
+
+        double distanceAlpha = stop_alpha - start_alpha;
+        double halfDistanceAlpha = 0.75*distanceAlpha;
+
+        double multiple = 1;
+        double summ = 0;
+        for(int i=0;i<numberVisible;i++){
+            summ+= multiple;
+            multiple*=koefForDistance;
+        }
+
+
+        double loopDistanceAlpha= halfDistanceAlpha/summ;
+        double delta_distance =  (distanceAlpha-halfDistanceAlpha)/(numberNotVisible+1);
+        double stop_alpha_loop = start_alpha;
+        double start_alpha_loop;
+        double alpha_loop=0,old_alpha_loop=0;
+
+        boolean visible_indic =true;
+        boolean stable_indic = true;
+        radius = (init_radius+(int)additional_size);
+        for(int i=0;i<allNumber;i++) {
+                start_alpha_loop = stop_alpha_loop;
+                stop_alpha_loop = start_alpha_loop + loopDistanceAlpha;
+            for(int j=0;j<numperPerStep;j++){
+                if (j==0){
+                    stable_indic=true;
+                }
+                else {
+                    stable_indic = false;
+                }
+                old_alpha_loop = alpha_loop;
+                alpha_loop = start_alpha_loop+j*loopDistanceAlpha/numperPerStep;
+                System.out.println(alpha_loop+" - "+(alpha_loop-old_alpha_loop));
+
+
+                temp_x = a_el * Math.cos(alpha_loop);
+                temp_y = b_el * Math.sin(alpha_loop);
+
+                temp_x_i_alfa = (int)(temp_x*cos_alpha+temp_y*sin_alpha);
+                temp_y_i_alfa = (int)(-temp_x*sin_alpha+temp_y*cos_alpha);
+
+                temp_x_i = temp_x_i_alfa +shift_x;
+                temp_y_i = shift_y- temp_y_i_alfa;
+
+                newEllipsePoint = new EllipsePoint(temp_x_i, temp_y_i, stable_indic,
+                        radius,visible_indic);
+
+                if (firstEllipsePoint==null){
+                    firstEllipsePoint = newEllipsePoint;
+                }
+                if (lastEllipsePoint!=null){
+                    lastEllipsePoint.next = newEllipsePoint;
+                }
+                newEllipsePoint.prev = lastEllipsePoint;
+                lastEllipsePoint =newEllipsePoint;
+                listGen.add(newEllipsePoint);
+
             }
-            if (Math.cos(start_alpha)>=0){
-                additional_size = init_radius*(Math.cos(start_alpha))/1.7;
-                additional_size = 0;
-                visible_indic =true;
-            } else {
-                additional_size = 0;
+
+            if (i<numberVisible-1) {
+                loopDistanceAlpha *= koefForDistance;
+            }else{
+                loopDistanceAlpha =delta_distance;
+                radius = init_radius;
                 visible_indic =false;
             }
-            radius = (init_radius+(int)additional_size);
-            temp_x = a_el * Math.cos(start_alpha);
-            temp_y = b_el * Math.sin(start_alpha);
-
-
-            temp_x_i_alfa = (int)(temp_x*cos_alpha+temp_y*sin_alpha);
-            temp_y_i_alfa = (int)(-temp_x*sin_alpha+temp_y*cos_alpha);
-
-
-            temp_x_i = temp_x_i_alfa +shift_x;
-            temp_y_i = shift_y- temp_y_i_alfa;
-
-            newEllipsePoint = new EllipsePoint(temp_x_i, temp_y_i, stable_indic,
-                    radius,visible_indic);
-
-            if (firstEllipsePoint==null){
-                firstEllipsePoint = newEllipsePoint;
-            }
-            if (lastEllipsePoint!=null){
-                lastEllipsePoint.next = newEllipsePoint;
-            }
-            newEllipsePoint.prev = lastEllipsePoint;
-            lastEllipsePoint =newEllipsePoint;
-            listGen.add(newEllipsePoint);
-            start_alpha = start_alpha + step;
         }
+
         lastEllipsePoint.next = firstEllipsePoint;
         firstEllipsePoint.prev = lastEllipsePoint;
         return listGen;
@@ -372,18 +421,18 @@ public class BubbleMenuActivity extends Activity {
 
                 if ((e2.getX()+e2.getY())<300+720){
                     if (distanceY > 0) {
-                        global_move--;
+                        global_move++;
 
                     } else {
-                        global_move++;
+                        global_move--;
 
                     }
                 } else {
                     if (distanceY < 0) {
-                        global_move--;
+                        global_move++;
 
                     } else {
-                        global_move++;
+                        global_move--;
 
                     }
                 }

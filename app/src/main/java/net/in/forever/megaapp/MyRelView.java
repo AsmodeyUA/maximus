@@ -37,7 +37,9 @@ public class MyRelView extends RelativeLayout {
     public void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
         //canvas.drawOval(mBounds, mPaint);
+
         double alfa = Math.atan(widthY / widthX);
+
         int a_el = 0;
         int b_el = widthY/4;
         int shift_x = widthX/2;
