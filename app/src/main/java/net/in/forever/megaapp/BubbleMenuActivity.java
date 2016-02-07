@@ -44,6 +44,7 @@ public class BubbleMenuActivity extends Activity {
     double cur_x_Stop;
     double cur_y_Stop;
     private int global_move=0;
+    int COUNT_FOR_ONE_STEP = 1;
     private final List<TextAreaPoint> textAreaPoints= new ArrayList<>();
 
     /* (non-Javadoc)
@@ -127,8 +128,8 @@ public class BubbleMenuActivity extends Activity {
 
         int wx = linLayout.getWidthX();
         int wy = linLayout.getWidthY();
-        System.out.println("Width - " + wx);
-        System.out.println("Height - " + wy);
+//        System.out.println("Width - " + wx);
+//        System.out.println("Height - " + wy);
 
         linLayout.setOnTouchListener(new View.OnTouchListener() {
             @SuppressLint("ClickableViewAccessibility")
@@ -136,11 +137,11 @@ public class BubbleMenuActivity extends Activity {
             public boolean onTouch(View arg0, MotionEvent arg1) {
 
                 if (gestureDetector.onTouchEvent(arg1)) {
-                    System.out.println("Gesture");
+//                    System.out.println("Gesture");
                     return true;
                 } else {
                     // your code for move and drag
-                    System.out.println("Gesture");
+//                    System.out.println("Gesture");
                 }
 
                 return false;
@@ -149,28 +150,31 @@ public class BubbleMenuActivity extends Activity {
 
         double a_el = global_x /4, b_el = global_y /4;
         double start_alpha =3* Math.PI/2;
-        int n_steps =9;
         int n_stable_per_point = 5;
-        double stop_alpha = 13*Math.PI/4;
+        int number_visible =8;
+        int all_number = 17;
+        double stop_alpha = 27*Math.PI/8;
         //double stop_alpha = 0;
         double alfa = Math.atan(global_y / global_x);
         //double alfa = 0;
         int shift_x = global_x /2;
         int shift_y = global_y /2;
-
-        int radius = 100;
+        double koefForDistance=0.9;
+        double koefhalfDistanceAlpha=0.85;
+        int radius = (int)((b_el+b_el)/15);
 
         //		Button[] buttonAll = new Button[n_steps];
         //		ImageView[] imageViewAll = new ImageView[n_steps];
         //		TextView[] textViewAll = new TextView[n_steps];
 
         List<EllipsePoint> list2 = generate_coord(a_el, b_el, start_alpha,
-                stop_alpha, shift_x, shift_y, n_stable_per_point, radius,alfa);
-        System.out.println(list2);
+                stop_alpha, shift_x, shift_y, n_stable_per_point, radius,alfa,number_visible,all_number,
+                koefForDistance,koefhalfDistanceAlpha);
+//        System.out.println(list2);
         Iterator<EllipsePoint> itr = list2.iterator();
         EllipsePoint tempEl,templElprev;
 
-        int countButton = 0;String tempName;
+        int countButton = 1;String tempName;
         while (itr.hasNext()) {
             tempEl = itr.next();
             System.out.println(tempEl+"-"+tempEl.prev+"-"+tempEl.next);
@@ -201,9 +205,9 @@ public class BubbleMenuActivity extends Activity {
                 textAreaPoints.add(new TextAreaPoint(tempTextView,tempName,tempEl));
 
                 countButton++;
-                System.out.println(tempEl + " ; " + "x: " + tempEl.x + "; y: "
-                        + tempEl.y + ";" + " Stable: " + tempEl.stable + ";"
-                        + " Radius: " + tempEl.radius + ";"+ ";");
+//                System.out.println(tempEl + " ; " + "x: " + tempEl.x + "; y: "
+//                        + tempEl.y + ";" + " Stable: " + tempEl.stable + ";"
+//                        + " Radius: " + tempEl.radius + ";"+ ";");
             }
 
         }
@@ -213,7 +217,8 @@ public class BubbleMenuActivity extends Activity {
 
     private static List<EllipsePoint> generate_coord(double a_el, double b_el,
                                                      double start_alpha, double stop_alpha, int shift_x,
-                                                     int shift_y, int n_stable_per_point, int init_radius, double alfa) {
+                                                     int shift_y, int numperPerStep, int init_radius, double alfa, int numberVisible,
+                                                     int allNumber, double koefForDistance, double koefhalfDistanceAlpha) {
 
         List<EllipsePoint> listGen = new LinkedList<>();
 
@@ -226,23 +231,19 @@ public class BubbleMenuActivity extends Activity {
         int temp_y_i_alfa;
         double sin_alpha = Math.sin(alfa);
         double cos_alpha = Math.cos(alfa);
-        int counter = 0;
+        int countPoints = 0;
 
         int radius;
-        double additional_size=100;
         EllipsePoint firstEllipsePoint=null;
         EllipsePoint lastEllipsePoint=null;
         EllipsePoint newEllipsePoint=null;
 
-        int numberVisible = 5;
-        int allNumber = 14;
-        int numberNotVisible = allNumber-numberVisible;
-        int numperPerStep =7;
+        EllipsePoint before5Point=null;
 
-        double koefForDistance=0.9;
+        int numberNotVisible = allNumber-numberVisible;
 
         double distanceAlpha = stop_alpha - start_alpha;
-        double halfDistanceAlpha = 0.75*distanceAlpha;
+        double halfDistanceAlpha = koefhalfDistanceAlpha*distanceAlpha;
 
         double multiple = 1;
         double summ = 0;
@@ -260,7 +261,10 @@ public class BubbleMenuActivity extends Activity {
 
         boolean visible_indic =true;
         boolean stable_indic = true;
-        radius = (init_radius+(int)additional_size);
+        boolean firstPointRadiusIsSet=false;
+        int countForFirstPointRadius=0;
+        int newRadius=0;
+        radius = init_radius;
         for(int i=0;i<allNumber;i++) {
                 start_alpha_loop = stop_alpha_loop;
                 stop_alpha_loop = start_alpha_loop + loopDistanceAlpha;
@@ -273,8 +277,7 @@ public class BubbleMenuActivity extends Activity {
                 }
                 old_alpha_loop = alpha_loop;
                 alpha_loop = start_alpha_loop+j*loopDistanceAlpha/numperPerStep;
-                System.out.println(alpha_loop+" - "+(alpha_loop-old_alpha_loop));
-
+                //System.out.println(alpha_loop+" - "+(alpha_loop-old_alpha_loop));
 
                 temp_x = a_el * Math.cos(alpha_loop);
                 temp_y = b_el * Math.sin(alpha_loop);
@@ -290,6 +293,7 @@ public class BubbleMenuActivity extends Activity {
 
                 if (firstEllipsePoint==null){
                     firstEllipsePoint = newEllipsePoint;
+                    before5Point = newEllipsePoint;
                 }
                 if (lastEllipsePoint!=null){
                     lastEllipsePoint.next = newEllipsePoint;
@@ -297,6 +301,40 @@ public class BubbleMenuActivity extends Activity {
                 newEllipsePoint.prev = lastEllipsePoint;
                 lastEllipsePoint =newEllipsePoint;
                 listGen.add(newEllipsePoint);
+                countPoints++;
+
+                if (i<numberVisible) {
+                    if (countPoints>numperPerStep){
+                        if (firstPointRadiusIsSet){
+                            newRadius = 2*(int)(Math.sqrt(newEllipsePoint.sqrDistanceTo(before5Point))-before5Point.radius/2);
+                            newEllipsePoint.setNewRadius(newRadius);
+                        }else{
+                            newRadius = (int)(Math.sqrt(newEllipsePoint.sqrDistanceTo(before5Point)));
+                            newEllipsePoint.setNewRadius(newRadius);
+                            before5Point.setNewRadius(newRadius);
+                            countForFirstPointRadius++;
+                            if (countForFirstPointRadius>numperPerStep){
+                                firstPointRadiusIsSet=true;
+                            }
+                        }
+//                        System.out.println("New Point");
+//                        System.out.print(newEllipsePoint);
+//                        System.out.print(" - ");
+//                        System.out.print(before5Point);
+//                        System.out.print(" - ");
+//                        System.out.print(newEllipsePoint.radius);
+//                        System.out.print(" - ");
+//                        System.out.print(newRadius);
+//                        System.out.print(" - ");
+//                        System.out.print(newEllipsePoint.stable);
+//                        System.out.print(" - ");
+//                        System.out.print(before5Point.stable);
+
+                        before5Point=before5Point.next;
+
+                    }
+                }
+
 
             }
 
@@ -304,7 +342,6 @@ public class BubbleMenuActivity extends Activity {
                 loopDistanceAlpha *= koefForDistance;
             }else{
                 loopDistanceAlpha =delta_distance;
-                radius = init_radius;
                 visible_indic =false;
             }
         }
@@ -374,7 +411,7 @@ public class BubbleMenuActivity extends Activity {
         if (tempEllipse.visible){
             tempTextView.setText(Name);
         } else {
-            tempTextView.setText("_");
+            tempTextView.setText("");
         }
         tempTextView.setGravity(Gravity.CENTER);
         return tempTextView;
@@ -436,7 +473,6 @@ public class BubbleMenuActivity extends Activity {
 
                     }
                 }
-                int COUNT_FOR_ONE_STEP = 0;
                 if (global_move < -COUNT_FOR_ONE_STEP) {
                     global_move=0;
                     onSwipeDown();

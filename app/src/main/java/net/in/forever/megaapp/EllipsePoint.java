@@ -4,11 +4,11 @@ public class EllipsePoint {
 
     public final int x;
     public final int y;
-    public final int draw_x;
-    public final int draw_y;
+    public int draw_x;
+    public int draw_y;
     public final boolean stable;
     public final boolean visible;
-    public final int radius;
+    public int radius;
     public EllipsePoint prev;
     public EllipsePoint next;
 
@@ -23,4 +23,17 @@ public class EllipsePoint {
         next=null;
         prev=null;
     }
+
+    double sqrDistanceTo(EllipsePoint toPoint){
+        return (this.x-toPoint.x)*(this.x-toPoint.x)+(this.y-toPoint.y)*(this.y-toPoint.y);
+    }
+
+    EllipsePoint setNewRadius(int init_radius){
+        this.radius =init_radius;
+        this.draw_x = x- this.radius /2;
+        this.draw_y = y- this.radius /2;
+        return this;
+    }
+
+
 }
