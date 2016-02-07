@@ -18,6 +18,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -46,13 +49,19 @@ public class HttpMainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                String replyFromServer = "Reply";
+                JSONArray replyFromServer;
                 try {
-                    replyFromServer = SiteApi.getRequestFromSite("http://95.215.156.221:8899/web2/find/extended?key=river&latitude=48.1851006&longitude=23.177981&radius=10000");
+                    replyFromServer = SiteApi.getRequestFromSite("http://95.215.156.221:8899/web2/adverts/get/fe67b63c-8c59-3544-bb63-8be775c57106");
+                    String repl = "Getppp";
+
+                    textResView.setText(repl);
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                textResView.setText(replyFromServer);
+
+
             }
         });
 
