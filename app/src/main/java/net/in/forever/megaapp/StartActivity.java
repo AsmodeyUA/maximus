@@ -13,38 +13,30 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.MultipartBuilder;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
+
+import java.io.IOException;
 import java.util.UUID;
+
+import static com.squareup.okhttp.MultipartBuilder.FORM;
 
 public class StartActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public String megaDeviceID;
-
-    public String getUserId(){
-        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
-
-        final String tmDevice, tmSerial, androidId;
-//        System.out.println("Log started");
-        tmDevice = "" + tm.getDeviceId();
-//        System.out.println(tmDevice);
-        tmSerial = "" + tm.getSimSerialNumber();
-//        System.out.println(tmSerial);
-        androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-//        System.out.println(androidId);
-        UUID deviceUuid = new UUID(androidId.hashCode(), ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
-//        System.out.println(deviceUuid);
-        String deviceId = deviceUuid.toString();
-//        System.out.println(deviceId);
-        return deviceId;
-
-    }
+    public String megaUserID;
+    TextView textViewDeviceId;
+    TextView textViewUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
 
         setContentView(R.layout.activity_start);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -56,11 +48,14 @@ public class StartActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-
+        textViewDeviceId =(TextView) findViewById(R.id.textViewUserId);
+        textViewUserId =(TextView) findViewById(R.id.textViewUserId);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         megaDeviceID=getUserId();
+        fetchUserIdFromSite();
+        textViewDeviceId.setText(megaDeviceID);
 
     }
 
@@ -77,9 +72,6 @@ public class StartActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        TextView textViewUserId =(TextView) findViewById(R.id.textViewUserId);
-        //  navigationView.addView(textViewUserId);
-        textViewUserId.setText(megaDeviceID);
         getMenuInflater().inflate(R.menu.start, menu);
         return true;
     }
@@ -116,4 +108,78 @@ public class StartActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    public String getUserId(){
+        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+
+        final String tmDevice, tmSerial, androidId;
+//        System.out.println("Log started");
+        tmDevice = "" + tm.getDeviceId();
+//        System.out.println(tmDevice);
+        tmSerial = "" + tm.getSimSerialNumber();
+//        System.out.println(tmSerial);
+        androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+//        System.out.println(androidId);
+        UUID deviceUuid = new UUID(androidId.hashCode(), ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
+//        System.out.println(deviceUuid);
+        String deviceId = deviceUuid.toString();
+        System.out.println("DeviceID - "+deviceId);
+        return deviceId;
+
+    }
+
+    public boolean fetchUserIdFromSite(){
+        try {
+            megaUserID = "";
+            String imei = megaDeviceID;
+            OkHttpClient client = new OkHttpClient();
+            MultipartBuilder multipartBuilder = new MultipartBuilder();
+            multipartBuilder.type(FORM);
+            System.out.println("Start message");
+            multipartBuilder.addPart(
+                    Headers.of("Content-Disposition", "form-data; name=\"imei\""),
+                    RequestBody.create(null, imei));
+            System.out.println("Start message");
+            RequestBody requestBody = multipartBuilder.build();
+            System.out.println("Start message");
+            Request request = new Request.Builder()
+                    .url(SiteApi.serverURLuser)
+                    .post(requestBody)
+                    .build();
+            System.out.println("Start message");
+            client.newCall(request).enqueue(new Callback() {
+
+                @Override
+                public void onFailure(Request request, IOException e) {
+                    // Handle the error
+                    System.out.println("error request user id from site");
+                    System.out.println(e);
+                }
+
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        // Handle the error
+                        System.out.println("error response during fetching userid");
+                    }
+                    // Upload successful
+
+                    System.out.println("REPLYMAX");
+                    System.out.println(response.body().string());
+                    megaUserID = response.body().toString();
+                    textViewUserId.setText(megaUserID);
+                }
+
+            });
+
+            return true;
+        } catch (Exception ex) {
+            System.out.println("error during fetching userid");
+            System.out.println(ex);
+        }
+        return false;
+
+    }
+
+
 }

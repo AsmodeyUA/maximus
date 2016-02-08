@@ -26,10 +26,4 @@
         android:text="Android Studio"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
-    <TextView
-        android:id="@+id/textViewUserId"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-
 </LinearLayout>

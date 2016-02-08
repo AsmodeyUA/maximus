@@ -8,10 +8,13 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
+
     <include
         layout="@layout/app_bar_start"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
@@ -23,4 +26,15 @@
         app:menu="@menu/activity_start_drawer"
         android:theme="@style/AppThemeMyMenu" />
 
+    <TextView
+        android:id="@+id/textViewDeviceId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <TextView
+        android:id="@+id/textViewUserId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
 </android.support.v4.widget.DrawerLayout>
